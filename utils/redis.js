@@ -1,3 +1,5 @@
+//  Redis database connection for caching system
+
 import { createClient } from "redis";
 import { promisify } from "util";
 
