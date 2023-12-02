@@ -7,13 +7,13 @@ class DBClient {
 	 * Connect to mongodb database on every instance of DBClient
 	 */
 	constructor() {
-		try(){
-		const host = process.env.DB_HOST || "localhost";
-		const port = process.env.DB_PORT || 27017;
-		const database = process.env.DB_DATABASE || "files_manager";
-		const url = `mongodb://${host}:${port}/${database}`;
-		this.client = new MongoClient(url);
-		this.client.connect();
+		try {
+			const host = process.env.DB_HOST || "localhost";
+			const port = process.env.DB_PORT || 27017;
+			const database = process.env.DB_DATABASE || "files_manager";
+			const url = `mongodb://${host}:${port}/${database}`;
+			this.client = new MongoClient(url);
+			this.client.connect();
 		} catch (error) {
 			console.error(error);
 		}
