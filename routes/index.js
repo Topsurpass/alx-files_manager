@@ -1,4 +1,5 @@
 import AppController from "../controllers/AppController";
+import UsersController from "../controllers/UsersController";
 
 /**
  * This contains all the routes of my application.
@@ -8,7 +9,7 @@ import AppController from "../controllers/AppController";
 
 function allAppRoutes(server) {
 	server.get("/status", AppController.getStatus);
-	server.get("/stats", AppController.getStats);
+    server.get("/stats", AppController.getStats);
+    server.post("/users", UsersController.postNew);
 }
-
 export default allAppRoutes;

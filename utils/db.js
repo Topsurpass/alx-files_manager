@@ -1,5 +1,4 @@
-// Redis database connection for our storage of data
-
+// Mongodb database connection for our storage of data
 import { MongoClient } from "mongodb";
 
 class DBClient {
@@ -12,7 +11,7 @@ class DBClient {
 		const database = process.env.DB_DATABASE || "files_manager";
 		const url = `mongodb://${host}:${port}/${database}`;
 		this.client = new MongoClient(url, { useUnifiedTopology: true });
-		this.client.connect(()=> console.log('Mongodb is connected'));
+		this.client.connect(() => console.log("Mongodb is connected"));
 	}
 	/**
 	 * CHeck if database is connected
@@ -34,6 +33,13 @@ class DBClient {
 	 */
 	async nbFiles() {
 		return this.client.db().collection("files").countDocuments();
+	}
+	/**
+	 * Return the collection (table) users
+	 * @returns {promise<Collection>}
+	 */
+	async usersCollection() {
+		return this.client.db().collection("users");
 	}
 }
 
