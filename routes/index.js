@@ -1,10 +1,14 @@
-import app from "../server";
 import AppController from "../controllers/AppController";
 
 /**
- * This contains all the routes of my application
+ * This contains all the routes of my application.
+ * It's created in a function so as to be able to be called in
+ * the server module.
  */
 
-app.get('/status', AppController.getStatus);
+function allAppRoutes(server) {
+	server.get("/status", AppController.getStatus);
+	server.get("/stats", AppController.getStats);
+}
 
-app.get("/stats", AppController.getStats);
+export default allAppRoutes;
