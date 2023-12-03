@@ -1,4 +1,5 @@
 import express from "express";
+import allAppRoutes from "./routes";
 
 /**
  * Create my express server listening to port set from env
@@ -6,6 +7,8 @@ import express from "express";
  */
 const app = express();
 const port = process.env.PORT || 5000;
+
+allAppRoutes(app);
 
 app.listen(port, () => console.log(`Server connected on port ${port}`));
 
