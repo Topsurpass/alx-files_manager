@@ -13,13 +13,11 @@ export default class AppController{
             db: dbClient.isAlive(),
         })
     }
-    static getStats(_req, res) {
-        Promise.all([dbClient.nbUsers(), dbClient.nbFiles()])
-            .then(([countUsers, countFiles]) => {
-                res.status(200).json({
-                    users: countUsers,
+    static async getStats(_req, res) {
+        const [countUsers, countFiles] = await Promise.all([dbClient.nbUsers(), dbClient.nbFiles()]);
+	    res.status(200).json({
+		    users: countUsers,
                     files: countFiles
-            })
-        })
+            });
     }
 }
