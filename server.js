@@ -8,6 +8,9 @@ import allAppRoutes from "./routes";
 const app = express();
 const port = process.env.PORT || 5000;
 
+//middleware to parse JSON
+app.use(express.json());
+
 allAppRoutes(app);
 
 app.listen(port, () => console.log(`Server connected on port ${port}`));
