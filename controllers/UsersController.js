@@ -1,13 +1,11 @@
 /**
  * This contains the class that holds methods for the POST /user endpoint
  */
-
 import sha1 from "sha1";
 import dbClient from "../utils/db";
-import redisClient from "../utils/redis";
-import mongoDBCore from 'mongodb/lib/core';
 
 export default class UsersController {
+	// Sign-up new user
 	static async postNew(req, res) {
 		const email = req.body ? req.body.email : null;
 		const pwd = req.body ? req.body.password : null;
@@ -46,30 +44,33 @@ export default class UsersController {
 		});
 	}
 
+	// Retrieve the user based on the token used
 	static async getMe(req, res) {
-		const token = req.headers["x-token"];
-		if (!token) {
-			return res.status(401).json({
-				error: "Unathorized",
-			});
-		}
-		const userId = await redisClient.get(`auth_${token}`);
-		if (!userId) {
-			return res.status(401).json({
-				error: "Unathorized",
-			});
-		}
-		const user = await (
-			await dbClient.usersCollection()
-        ).findOne({ _id: new mongoDBCore.BSON.ObjectId(userId) });
-        
-		if (!user) {
-			return res.status(401).json({
-				error: "Unauthorized",
-			});
-		}
+		// const token = req.headers["x-token"];
+		// if (!token) {
+		// 	return res.status(401).json({
+		// 		error: "Unathorized",
+		// 	});
+		// }
+		// const userId = await redisClient.get(`auth_${token}`);
+		// if (!userId) {
+		// 	return res.status(401).json({
+		// 		error: "Unathorized",
+		// 	});
+		// }
+		// const user = await (
+		// 	await dbClient.usersCollection()
+		// ).findOne({ _id: new mongoDBCore.BSON.ObjectId(userId) });
+
+		// if (!user) {
+		// 	return res.status(401).json({
+		// 		error: "Unauthorized",
+		// 	});
+        // }
+        const user = res.locoals.user;
 		res.status(200).json({
-			user: user,
+            id: user._id,
+            email: user.email,
 		});
 	}
 }

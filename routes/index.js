@@ -1,6 +1,7 @@
 import AppController from "../controllers/AppController";
 import UsersController from "../controllers/UsersController";
 import AuthController from "../controllers/AuthController";
+import beforeRequest from "../utils/middleware";
 
 /**
  * This contains all the routes of my application.
@@ -14,6 +15,6 @@ function allAppRoutes(server) {
     server.post("/users", UsersController.postNew);
     server.get("/connect", AuthController.getConnect);
     server.get("/disconnect", AuthController.getDisconnect);
-    server.get("/users/me", UsersController.getMe);
+    server.get("/users/me", beforeRequest, UsersController.getMe);
 }
 export default allAppRoutes;
