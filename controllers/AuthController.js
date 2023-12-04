@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import dbClient from "../utils/db";
 import redisClient from "../utils/redis";
+import sha1 from 'sha1';
 
 export default class AuthController {
 	static async getConnect(req, res) {
@@ -38,7 +39,7 @@ export default class AuthController {
 		return res.status(200).json({ token: authToken });
 	}
     static async getDisconnect(req, res) {
-        const token = req.headers['X-Token'];
+        const token = req.headers['x-token'];
         const userId = await redisClient.get(token);
         if (!userId) {
             res.status(401).json({
