@@ -24,6 +24,7 @@ async function beforeRequest(req, res, next) {
 			error: "Unauthorized",
 		});
     }
+    req.user = user;
     next();
 }
 

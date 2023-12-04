@@ -47,7 +47,7 @@ export default class UsersController {
 	// Retrieve the user based on the token used
 	static async getMe(req, res) {
 
-        const user = res.locals.user;
+        const { user } = req;
 		res.status(200).json({
             id: user._id,
             email: user.email,
