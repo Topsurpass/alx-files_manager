@@ -2,7 +2,7 @@ import dbClient from "../utils/db";
 import redisClient from "../utils/redis";
 import mongoDBCore from "mongodb/lib/core";
 
-async function beforeRequest(req, res) {
+async function beforeRequest(req, res, next) {
 	const token = req.headers["x-token"];
 	if (!token) {
 		return res.status(401).json({
@@ -23,7 +23,8 @@ async function beforeRequest(req, res) {
 		return res.status(401).json({
 			error: "Unauthorized",
 		});
-	}
+    }
+    next();
 }
 
 export default beforeRequest;
