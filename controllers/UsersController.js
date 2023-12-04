@@ -60,7 +60,15 @@ export default class UsersController {
 		}
 		const user = await (
 			await dbClient.usersCollection()
-		).findOne({ _id: new mongoDBCore.BSON.ObjectId(userId) });
-		return user || null;
+        ).findOne({ _id: new mongoDBCore.BSON.ObjectId(userId) });
+        
+		if (!user) {
+			return res.status(401).json({
+				error: "Unauthorized",
+			});
+		}
+		res.status(200).json({
+			user: user,
+		});
 	}
 }
