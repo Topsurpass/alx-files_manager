@@ -14,14 +14,14 @@ export default class AuthController {
 		const authCredentials = authHeader.split(" ");
 		if (
 			authCredentials.length !== 2 ||
-			authCredentials[0].strip() !== "Basic"
+			authCredentials[0] !== "Basic"
 		) {
 			return res.status(401).json({
 				error: "Unauthorized",
             });
 		}
 		const decodedData = Buffer.from(
-			authCredentials[1].strip(),
+			authCredentials[1],
 			"base64"
 		).toString("utf-8");
 		const [email, password] = decodedData.split(":");
@@ -38,7 +38,7 @@ export default class AuthController {
 		return res.status(200).json({ token: authToken });
 	}
     static async getDisconnect(req, res) {
-        const token = req.headers['X-Token'].strip();
+        const token = req.headers['X-Token'];
         const userId = await redisClient.get(token);
         if (!userId) {
             res.status(401).json({
