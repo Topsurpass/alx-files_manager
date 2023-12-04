@@ -60,7 +60,7 @@ export default class UsersController {
 		}
 		const user = await (
 			await dbClient.usersCollection()
-		).findOne({ _id: new mongoDBCore.BSON.ObjectId(userId) });
+		).findOne({ _id: userId });
 		return user || null;
 	}
 }
