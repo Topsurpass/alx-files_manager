@@ -2,8 +2,8 @@ import { redisClient } from "../utils/redis";
 import { dbClient } from "../utils/db";
 
 /**
- * This contains the class that holds different methods and they get called
- * by specific route endpoint
+ * This contains the class that holds methods for the GET /stats and
+ * GET /status endpoint
  */
 
 export default class AppController {
