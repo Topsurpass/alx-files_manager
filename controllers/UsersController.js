@@ -44,13 +44,18 @@ export default class UsersController {
 		});
 	}
 
-	// Retrieve the user based on the token used
+	/**
+	 * Retrieve the user based on the token used.
+	 * The middleware beforeRequest is used to verify user
+	 * using token and the user from middleware is passed to the function req argument
+	 */
 	static async getMe(req, res) {
+		// From middleware user
+		const { user } = req;
 
-        const { user } = req;
 		res.status(200).json({
-            id: user._id,
-            email: user.email,
+			id: user._id,
+			email: user.email,
 		});
 	}
 }
