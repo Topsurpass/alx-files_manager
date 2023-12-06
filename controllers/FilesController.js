@@ -84,7 +84,7 @@ export default class FilesController {
 		const file = await (
 			await dbClient.filesCollection()
 		).findOne({
-			_id: user._id,
+			_id: new mongoDBCore.BSON.ObjectId(id),
 			userId: new mongoDBCore.BSON.ObjectId(userId),
 		});
 		if (!file) {
@@ -96,12 +96,15 @@ export default class FilesController {
 			name: file.name,
 			type: file.type,
 			isPublic: file.isPublic,
-			parentId: file.parentId,
+			parentId: file.parentId === '0' ? 0 : file.parentId.toString(),
 		});
 	}
 	static async getIndex(req, res) {
 		const { user } = req;
-		const { parentId = 0, page = 0 } = req.query;
+        const parentId = req.query.parentId || '0';
+        const page = /\d+/.test((req.query.page || "").toString())
+			? Number.parseInt(req.query.page, 10)
+			: 0;
 		const files = await (
 			await dbClient.filesCollection()
 		)
