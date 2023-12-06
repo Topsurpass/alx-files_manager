@@ -12,15 +12,19 @@ import FilesController from "../controllers/FilesController";
 
 function allAppRoutes(server) {
 	server.get("/status", AppController.getStatus);
-    server.get("/stats", AppController.getStats);
-    server.get("/connect", AuthController.getConnect);
-    server.get("/disconnect", AuthController.getDisconnect);
-    server.post("/users", UsersController.postNew);
-    server.get("/users/me", beforeRequest, UsersController.getMe);
-    server.post("/files", beforeRequest, FilesController.postUpload);
-    server.get("/files/:id", beforeRequest, FilesController.getShow);
-    server.get("/files", beforeRequest, FilesController.getIndex);
-    
-    
+	server.get("/stats", AppController.getStats);
+	server.get("/connect", AuthController.getConnect);
+	server.get("/disconnect", AuthController.getDisconnect);
+	server.post("/users", UsersController.postNew);
+	server.get("/users/me", beforeRequest, UsersController.getMe);
+	server.post("/files", beforeRequest, FilesController.postUpload);
+	server.get("/files/:id", beforeRequest, FilesController.getShow);
+	server.get("/files", beforeRequest, FilesController.getIndex);
+	server.put("/files/:id/publish", beforeRequest, FilesController.putPublish);
+	server.put(
+		"/files/:id/unpublish",
+		beforeRequest,
+		FilesController.putUnpublish
+	);
 }
 export default allAppRoutes;

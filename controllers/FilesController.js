@@ -5,6 +5,28 @@ import fs from "fs";
 
 const NULL_ID = Buffer.alloc(24, "0").toString("utf-8");
 const MAX_FILES_PER_PAGE = 20;
+const isValidId = (id) => {
+	const size = 24;
+	let i = 0;
+	const charRanges = [
+		[48, 57], // 0 - 9
+		[97, 102], // a - f
+		[65, 70], // A - F
+	];
+	if (typeof id !== "string" || id.length !== size) {
+		return false;
+	}
+	while (i < size) {
+		const c = id[i];
+		const code = c.charCodeAt(0);
+
+		if (!charRanges.some((range) => code >= range[0] && code <= range[1])) {
+			return false;
+		}
+		i += 1;
+	}
+	return true;
+};
 
 export default class FilesController {
 	static async postUpload(req, res) {
@@ -24,7 +46,11 @@ export default class FilesController {
 		if (parentId !== 0) {
 			const parentFile = await (
 				await dbClient.filesCollection()
-			).findOne({ _id: new mongoDBCore.BSON.ObjectId(parentId) });
+			).findOne({
+				_id: new mongoDBCore.BSON.ObjectId(
+					isValidId(parentId) ? parentId : NULL_ID
+				),
+			});
 			if (!parentFile) {
 				return res.status(400).json({ error: "Parent not found" });
 			}
@@ -77,6 +103,12 @@ export default class FilesController {
 			parentId,
 		});
 	}
+	/**
+	 *  Retrieve the file document based on the ID
+	 * @param {string} req
+	 * @param {string} res
+	 * @returns  file document
+	 */
 	static async getShow(req, res) {
 		const { user } = req;
 		const id = req.params ? req.params.id : NULL_ID;
@@ -84,8 +116,10 @@ export default class FilesController {
 		const file = await (
 			await dbClient.filesCollection()
 		).findOne({
-			_id: new mongoDBCore.BSON.ObjectId(id),
-			userId: new mongoDBCore.BSON.ObjectId(userId),
+			_id: new mongoDBCore.BSON.ObjectId(isValidId(id) ? id : NULL_ID),
+			userId: new mongoDBCore.BSON.ObjectId(
+				isValidId(userId) ? userId : NULL_ID
+			),
 		});
 		if (!file) {
 			return res.status(404).json({ error: "Not found" });
@@ -99,10 +133,17 @@ export default class FilesController {
 			parentId: file.parentId === "0" ? 0 : file.parentId.toString(),
 		});
 	}
+	/**
+	 * Retrieve all users file documents for a specific parentId and with pagination.
+	 * Retrieve user file with parentId 0 if parentId is not specified
+	 * @param {string} req
+	 * @param {string} res
+	 * @Return array of objects
+	 */
 	static async getIndex(req, res) {
 		const { user } = req;
-        const { parentId = 0, page = 0 } = req.query;
-        
+		const { parentId = 0, page = 0 } = req.query;
+
 		const files = await (
 			await dbClient.filesCollection()
 		)
@@ -113,7 +154,9 @@ export default class FilesController {
 						parentId:
 							parentId === "0"
 								? parentId
-								: new mongoDBCore.BSON.ObjectId(parentId)
+								: new mongoDBCore.BSON.ObjectId(
+										isValidId(parentId) ? parentId : NULL_ID
+								  )
 								? parentId
 								: NULL_ID,
 					},
@@ -130,5 +173,75 @@ export default class FilesController {
 			])
 			.toArray();
 		res.status(200).json(files);
+	}
+	/**
+	 * Set file isPublic key to true on the file document based on the ID
+	 * @param {string} req
+	 * @param {string} res
+	 * @returns
+	 */
+	static async putPublish(req, res) {
+		const { user } = req;
+		const { id } = req.params;
+		const userId = user._id.toString();
+		const fileFilter = {
+			_id: new mongoDBCore.BSON.ObjectId(isValidId(id) ? id : NULL_ID),
+			userId: new mongoDBCore.BSON.ObjectId(
+				isValidId(userId) ? userId : NULL_ID
+			),
+		};
+		const file = await (
+			await dbClient.filesCollection()
+		).findOne(fileFilter);
+
+		if (!file) {
+			res.status(404).json({ error: "Not found" });
+			return;
+		}
+		await (
+			await dbClient.filesCollection()
+		).updateOne(fileFilter, { $set: { isPublic: true } });
+		res.status(200).json({
+			id,
+			userId,
+			name: file.name,
+			type: file.type,
+			isPublic: true,
+			parentId: file.parentId === "0" ? 0 : file.parentId.toString(),
+		});
+	}
+	/**
+	 * Set file isPublic attribute to false on the file document based on the ID
+	 * @param {string} req
+	 * @param {string} res
+	 * @returns
+	 */
+	static async putUnpublish(req, res) {
+		const { user } = req;
+		const { id } = req.params;
+		const userId = user._id.toString();
+		const findFile = {
+			_id: new mongoDBCore.BSON.ObjectId(isValidId(id) ? id : NULL_ID),
+			userId: new mongoDBCore.BSON.ObjectId(
+				isValidId(userId) ? userId : NULL_ID
+			),
+		};
+		const file = await (await dbClient.filesCollection()).findOne(findFile);
+
+		if (!file) {
+			res.status(404).json({ error: "Not found" });
+			return;
+		}
+		await (
+			await dbClient.filesCollection()
+		).updateOne(findFile, { $set: { isPublic: false } });
+		res.status(200).json({
+			id,
+			userId,
+			name: file.name,
+			type: file.type,
+			isPublic: false,
+			parentId: file.parentId === "0" ? 0 : file.parentId.toString(),
+		});
 	}
 }
