@@ -109,13 +109,11 @@ export default class FilesController {
 			.aggregate([
 				{
 					$match: {
-						userId: user._id,
+						userId: userId,
 						parentId:
 							parentId === "0"
 								? parentId
-								: new mongoDBCore.BSON.ObjectId(parentId)
-								? parentId
-								: NULL_ID,
+								: new mongoDBCore.BSON.ObjectId(parentId),
 					},
 				},
 				{
