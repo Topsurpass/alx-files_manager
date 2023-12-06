@@ -1,30 +1,37 @@
-import AppController from "../controllers/AppController";
-import UsersController from "../controllers/UsersController";
-import AuthController from "../controllers/AuthController";
-import beforeRequest from "../utils/middleware";
-import FilesController from "../controllers/FilesController";
+// eslint-disable-next-line no-unused-vars
+import { Express } from 'express';
+import AppController from '../controllers/AppController';
+import AuthController from '../controllers/AuthController';
+import UsersController from '../controllers/UsersController';
+import FilesController from '../controllers/FilesController';
+import { basicAuthenticate, xTokenAuthenticate } from '../middlewares/auth';
+import { APIError, errorResponse } from '../middlewares/error';
 
 /**
- * This contains all the routes of my application.
- * It's created in a function so as to be able to be called in
- * the server module.
+ * Injects routes with their handlers to the given Express application.
+ * @param {Express} api
  */
+const injectRoutes = (api) => {
+  api.get('/status', AppController.getStatus);
+  api.get('/stats', AppController.getStats);
 
-function allAppRoutes(server) {
-	server.get("/status", AppController.getStatus);
-	server.get("/stats", AppController.getStats);
-	server.get("/connect", AuthController.getConnect);
-	server.get("/disconnect", AuthController.getDisconnect);
-	server.post("/users", UsersController.postNew);
-	server.get("/users/me", beforeRequest, UsersController.getMe);
-	server.post("/files", beforeRequest, FilesController.postUpload);
-	server.get("/files/:id", beforeRequest, FilesController.getShow);
-	server.get("/files", beforeRequest, FilesController.getIndex);
-	server.put("/files/:id/publish", beforeRequest, FilesController.putPublish);
-	server.put(
-		"/files/:id/unpublish",
-		beforeRequest,
-		FilesController.putUnpublish
-	);
-}
-export default allAppRoutes;
+  api.get('/connect', basicAuthenticate, AuthController.getConnect);
+  api.get('/disconnect', xTokenAuthenticate, AuthController.getDisconnect);
+
+  api.post('/users', UsersController.postNew);
+  api.get('/users/me', xTokenAuthenticate, UsersController.getMe);
+
+  api.post('/files', xTokenAuthenticate, FilesController.postUpload);
+  api.get('/files/:id', xTokenAuthenticate, FilesController.getShow);
+  api.get('/files', xTokenAuthenticate, FilesController.getIndex);
+  api.put('/files/:id/publish', xTokenAuthenticate, FilesController.putPublish);
+  api.put('/files/:id/unpublish', xTokenAuthenticate, FilesController.putUnpublish);
+  api.get('/files/:id/data', FilesController.getFile);
+
+  api.all('*', (req, res, next) => {
+    errorResponse(new APIError(404, `Cannot ${req.method} ${req.url}`), req, res, next);
+  });
+  api.use(errorResponse);
+};
+
+export default injectRoutes;

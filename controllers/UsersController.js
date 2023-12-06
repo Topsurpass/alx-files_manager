@@ -1,61 +1,40 @@
-/**
- * This contains the class that holds methods for the POST /user endpoint
- */
-import sha1 from "sha1";
-import dbClient from "../utils/db";
+/* eslint-disable import/no-named-as-default */
+import sha1 from 'sha1';
+import Queue from 'bull/lib/queue';
+import dbClient from '../utils/db';
+
+const userQueue = new Queue('email sending');
 
 export default class UsersController {
-	// Sign-up new user
-	static async postNew(req, res) {
-		const email = req.body ? req.body.email : null;
-		const pwd = req.body ? req.body.password : null;
-		if (!email) {
-			res.status(400).json({
-				error: "Missing email",
-			});
-			return;
-		}
-		if (!pwd) {
-			res.status(400).json({
-				error: "Missing password",
-			});
-			return;
-		}
-		const existingUser = await (
-			await dbClient.usersCollection()
-		).findOne({ email });
-		if (existingUser) {
-			res.status(400).json({
-				error: "Already exist",
-			});
-			return;
-		}
+  static async postNew(req, res) {
+    const email = req.body ? req.body.email : null;
+    const password = req.body ? req.body.password : null;
 
-		const insertNewUser = await (
-			await dbClient.usersCollection()
-		).insertOne({
-			email: email,
-			password: sha1(pwd),
-		});
-		const userId = insertNewUser.insertedId.toString();
-		res.status(201).json({
-			email: email,
-			id: userId,
-		});
-	}
+    if (!email) {
+      res.status(400).json({ error: 'Missing email' });
+      return;
+    }
+    if (!password) {
+      res.status(400).json({ error: 'Missing password' });
+      return;
+    }
+    const user = await (await dbClient.usersCollection()).findOne({ email });
 
-	/**
-	 * Retrieve the user based on the token used.
-	 * The middleware beforeRequest is used to verify user
-	 * using token and the user from middleware is passed to the function req argument
-	 */
-	static async getMe(req, res) {
-		// From middleware user
-		const { user } = req;
+    if (user) {
+      res.status(400).json({ error: 'Already exist' });
+      return;
+    }
+    const insertionInfo = await (await dbClient.usersCollection())
+      .insertOne({ email, password: sha1(password) });
+    const userId = insertionInfo.insertedId.toString();
 
-		res.status(200).json({
-			id: user._id,
-			email: user.email,
-		});
-	}
+    userQueue.add({ userId });
+    res.status(201).json({ email, id: userId });
+  }
+
+  static async getMe(req, res) {
+    const { user } = req;
+
+    res.status(200).json({ email: user.email, id: user._id.toString() });
+  }
 }
