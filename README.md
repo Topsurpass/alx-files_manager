@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 Files manager
 
 This project is a summary of this back-end trimester: authentication, NodeJS, MongoDB, Redis, pagination and background processing.
@@ -13,8 +14,8 @@ View a file
 Generate thumbnails for images
 
 Team members are :
-Temitope Olowosuyi
-Tokunbo Ogunjobi
+Temitope Olowosuyi - temitopeabiodun685@gmail.com
+Tokunbo Ogunjobi - toxylee20021@gmail.com
 
 Learning objectives:
 how to create an API with Express
@@ -33,3 +34,9 @@ Your code will be verified against lint using ESLint
 =======
 # Node File manager
 >>>>>>> af8596a8af5874164f3e5787376dbaf9e9edd85c
+=======
+# Node File manager
+## Introduction
+This project covers most conceps in Node, ranging from authentication to creating routes, to understanding middleware, interacting with  mongodb and using redis to store session token e.t.c
+
+>>>>>>> fe456dbff52cf0e629de4fd9902752dd0c5b7162
