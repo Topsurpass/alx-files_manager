@@ -96,15 +96,13 @@ export default class FilesController {
 			name: file.name,
 			type: file.type,
 			isPublic: file.isPublic,
-			parentId: file.parentId === '0' ? 0 : file.parentId.toString(),
+			parentId: file.parentId === "0" ? 0 : file.parentId.toString(),
 		});
 	}
 	static async getIndex(req, res) {
 		const { user } = req;
-        const parentId = req.query.parentId || '0';
-        const page = /\d+/.test((req.query.page || "").toString())
-			? Number.parseInt(req.query.page, 10)
-			: 0;
+        const { parentId = 0, page = 0 } = req.query;
+        
 		const files = await (
 			await dbClient.filesCollection()
 		)
