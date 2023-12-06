@@ -49,7 +49,12 @@ export default class FilesController {
 		if (type !== "folder") {
 			// Create new folder for the file and write the data to the file
 			// and also save in database
-			fs.writeFile(localPath, Buffer.from(data, "base64"));
+			if (!fs.promises.existsSync(storingFolderPath)) {
+				await fs.promises.mkdirSync(storingFolderPath, {
+					recursive: true,
+				});
+			}
+			await fs.promises.writeFile(localPath, Buffer.from(data, "base64"));
 			newFile.localPath = localPath;
 		}
 		// If file is folder,  save file in database (Mongobd)
