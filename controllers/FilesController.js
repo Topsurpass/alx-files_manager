@@ -84,7 +84,7 @@ export default class FilesController {
 		const file = await (
 			await dbClient.filesCollection()
 		).findOne({
-			_id: new mongoDBCore.BSON.ObjectId(id),
+			_id: user._id,
 			userId: new mongoDBCore.BSON.ObjectId(userId),
 		});
 		if (!file) {
@@ -101,7 +101,6 @@ export default class FilesController {
 	}
 	static async getIndex(req, res) {
 		const { user } = req;
-		const userId = user._id.toString();
 		const { parentId = 0, page = 0 } = req.query;
 		const files = await (
 			await dbClient.filesCollection()
@@ -109,11 +108,13 @@ export default class FilesController {
 			.aggregate([
 				{
 					$match: {
-						userId: userId,
+						userId: user._id,
 						parentId:
 							parentId === "0"
 								? parentId
-								: new mongoDBCore.BSON.ObjectId(parentId),
+								: new mongoDBCore.BSON.ObjectId(parentId)
+								? parentId
+								: NULL_ID,
 					},
 				},
 				{
