@@ -18,6 +18,8 @@ function allAppRoutes(server) {
     server.post("/users", UsersController.postNew);
     server.get("/users/me", beforeRequest, UsersController.getMe);
     server.post("/files", beforeRequest, FilesController.postUpload);
+    server.get("/files/:id", beforeRequest, FilesController.getShow);
+    server.get("/files", beforeRequest, FilesController.getIndex);
     
     
 }

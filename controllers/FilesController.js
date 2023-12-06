@@ -3,6 +3,9 @@ import mongoDBCore from "mongodb/lib/core";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 
+const NULL_ID = Buffer.alloc(24, "0").toString("utf-8");
+const MAX_FILES_PER_PAGE = 20;
+
 export default class FilesController {
 	static async postUpload(req, res) {
 		const { name, type, parentId = 0, isPublic = false, data } = req.body;
@@ -73,5 +76,54 @@ export default class FilesController {
 			isPublic,
 			parentId,
 		});
+	}
+	static async getShow(req, res) {
+		const { user } = req;
+		const id = req.params ? req.params.id : NULL_ID;
+		const userId = user._id.toString();
+		const file = await (
+			await dbClient.filesCollection()
+		).findOne({
+			_id: new mongoDBCore.BSON.ObjectId(id),
+			userId: new mongoDBCore.BSON.ObjectId(userId),
+		});
+		if (!file) {
+			return res.status(404).json({ error: "Not found" });
+		}
+		return res.status(200).json({
+			id,
+			userId,
+			name: file.name,
+			type: file.type,
+			isPublic: file.isPublic,
+			parentId: file.parentId,
+		});
+	}
+	static async getIndex(req, res) {
+		const { user } = req;
+		const userId = user._id.toString();
+		const { parentId = 0, page = 0 } = req.query;
+		const files = await (
+			await dbClient.filesCollection()
+		)
+			.aggregate([
+				{
+					$match: {
+						userId: new mongoDBCore.BSON.ObjectId(userId),
+						parentId: new mongoDBCore.BSON.ObjectId(parentId),
+					},
+				},
+				{
+					$sort: { _id: -1 },
+				},
+				{
+					$skip: page * MAX_FILES_PER_PAGE,
+				},
+				{
+					$limit: MAX_FILES_PER_PAGE,
+				},
+			])
+			.toArray();
+		res.status(200).json(files);
 	}
 }
