@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Files manager
 
 This project is a summary of this back-end trimester: authentication, NodeJS, MongoDB, Redis, pagination and background processing.
@@ -29,3 +30,6 @@ All your files should end with a new line
 A README.md file, at the root of the folder of the project, is mandatory
 Your code should use the js extension
 Your code will be verified against lint using ESLint
+=======
+# Node File manager
+>>>>>>> af8596a8af5874164f3e5787376dbaf9e9edd85c
