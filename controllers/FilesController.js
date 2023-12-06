@@ -49,8 +49,10 @@ export default class FilesController {
 		if (type !== "folder") {
 			// Create new folder for the file and write the data to the file
 			// and also save in database
-			if (!fs.promises.existsSync(storingFolderPath)) {
-				await fs.promises.mkdirSync(storingFolderPath, {
+			try {
+				await fs.promises.access(storingFolderPath);
+			} catch {
+				await fs.promises.mkdir(storingFolderPath, {
 					recursive: true,
 				});
 			}
